@@ -1,0 +1,17 @@
+class Solution {
+public:
+    long long nthMagicalNumber(int n, int a, int b) {
+        long long lcm=(long long)a/__gcd(a, b) * b;
+        long long l=1,h = (long long)n*min(a, b);
+        
+        while(l<h){
+            long long mid=l+(h-l)/2;
+            if (mid / a + mid / b-mid/lcm>=n)
+                h = mid;
+            else
+                l = mid + 1;
+        }
+        
+        return l%1000000007;
+    }
+};

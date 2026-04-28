@@ -1,0 +1,71 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+const int MAXN = 100005;
+const int MAX_NODES = MAXN * 40;
+
+int n, k, q;
+int a[MAXN];
+vector<int> occ[MAXN];
+int last_pos[MAXN];
+int roots[MAXN], L[MAX_NODES], R[MAX_NODES], st[MAX_NODES];
+int nodes_cnt = 0;
+
+int update(int prev, int l, int r, int val) {
+    int node = ++nodes_cnt;
+    L[node] = L[prev];
+    R[node] = R[prev];
+    st[node] = st[prev] + 1;
+    if (l == r) return node;
+    int mid = (l + r) / 2;
+    if (val <= mid) L[node] = update(L[prev], l, mid, val);
+    else R[node] = update(R[prev], mid + 1, r, val);
+    return node;
+}
+
+int query(int node, int l, int r, int ql, int qr) {
+    if (!node || ql > r || qr < l) return 0;
+    if (ql <= l && r <= qr) return st[node];
+    int mid = (l + r) / 2;
+    return query(L[node], l, mid, ql, qr) + query(R[node], mid + 1, r, ql, qr);
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    if (!(cin >> n >> k)) return 0;
+
+    for (int i = 1; i <= n; i++) {
+        cin >> a[i];
+        occ[a[i]].push_back(i);
+        int sz = occ[a[i]].size();
+        if (sz > k) {
+            last_pos[i] = occ[a[i]][sz - k - 1];
+        } else {
+            last_pos[i] = 0;
+        }
+    }
+
+    for (int i = 1; i <= n; i++) {
+        roots[i] = update(roots[i - 1], 0, n, last_pos[i]);
+    }
+
+    cin >> q;
+    int last_ans = 0;
+    while (q--) {
+        int x, y;
+        cin >> x >> y;
+        int l = (x + last_ans) % n + 1;
+        int r = (y + last_ans) % n + 1;
+        if (l > r) swap(l, r);
+
+        last_ans = query(roots[r], 0, n, 0, l - 1) - query(roots[l - 1], 0, n, 0, l - 1);
+        cout << last_ans << "\n";
+    }
+
+    return 0;
+}

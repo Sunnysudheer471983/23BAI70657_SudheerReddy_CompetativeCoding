@@ -1,0 +1,73 @@
+#include <iostream>
+#include <vector>
+#include <string>
+#include <set>
+
+using namespace std;
+
+typedef long long ll;
+
+const ll MOD1 = 1e9 + 7;
+const ll MOD2 = 1e9 + 9;
+const ll P1 = 31;
+const ll P2 = 37;
+
+ll p1[600005], p2[600005];
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n, m;
+    cin >> n >> m;
+
+    p1[0] = 1; p2[0] = 1;
+    for (int i = 1; i < 600005; ++i) {
+        p1[i] = (p1[i - 1] * P1) % MOD1;
+        p2[i] = (p2[i - 1] * P2) % MOD2;
+    }
+
+    set<pair<ll, ll>> hashes;
+    for (int i = 0; i < n; ++i) {
+        string s;
+        cin >> s;
+        ll h1 = 0, h2 = 0;
+        for (char c : s) {
+            h1 = (h1 * P1 + (c - 'a' + 1)) % MOD1;
+            h2 = (h2 * P2 + (c - 'a' + 1)) % MOD2;
+        }
+        hashes.insert({h1, h2});
+    }
+
+    while (m--) {
+        string q;
+        cin >> q;
+        ll h1 = 0, h2 = 0;
+        for (char c : q) {
+            h1 = (h1 * P1 + (c - 'a' + 1)) % MOD1;
+            h2 = (h2 * P2 + (c - 'a' + 1)) % MOD2;
+        }
+
+        bool found = false;
+        for (int j = 0; j < q.size(); ++j) {
+            for (char c = 'a'; c <= 'c'; ++c) {
+                if (c == q[j]) continue;
+
+                ll nh1 = (h1 + (ll(c - q[j]) * p1[q.size() - 1 - j])) % MOD1;
+                if (nh1 < 0) nh1 += MOD1;
+
+                ll nh2 = (h2 + (ll(c - q[j]) * p2[q.size() - 1 - j])) % MOD2;
+                if (nh2 < 0) nh2 += MOD2;
+
+                if (hashes.count({nh1, nh2})) {
+                    found = true;
+                    break;
+                }
+            }
+            if (found) break;
+        }
+        cout << (found ? "YES" : "NO") << "\n";
+    }
+
+    return 0;
+}

@@ -1,0 +1,56 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+
+using namespace std;
+
+typedef long long ll;
+
+bool check(ll days, ll target, const vector<int>& h) {
+    ll ones = (days + 1) / 2;
+    ll twos = days / 2;
+    
+    for (int val : h) {
+        ll diff = target - val;
+        ll take2 = min(twos, diff / 2);
+        twos -= take2;
+        diff -= take2 * 2;
+        ones -= diff;
+    }
+    return ones >= 0;
+}
+
+ll solve_for_target(ll target, const vector<int>& h) {
+    ll low = 0, high = 1e15, ans = 1e15;
+    while (low <= high) {
+        ll mid = low + (high - low) / 2;
+        if (check(mid, target, h)) {
+            ans = mid;
+            high = mid - 1;
+        } else {
+            low = mid + 1;
+        }
+    }
+    return ans;
+}
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int t;
+    cin >> t;
+    while (t--) {
+        int n;
+        cin >> n;
+        vector<int> h(n);
+        int max_h = 0;
+        for (int i = 0; i < n; i++) {
+            cin >> h[i];
+            max_h = max(max_h, h[i]);
+        }
+
+        cout << min(solve_for_target(max_h, h), solve_for_target(max_h + 1, h)) << "\n";
+    }
+    return 0;
+}

@@ -1,0 +1,43 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <map>
+
+using namespace std;
+
+typedef long long ll;
+
+int main() {
+    ios_base::sync_with_stdio(false);
+    cin.tie(NULL);
+
+    int n;
+    cin >> n;
+
+    map<ll, int> diff;
+    for (int i = 0; i < n; ++i) {
+        ll l, r;
+        cin >> l >> r;
+        diff[l]++;
+        diff[r + 1]--;
+    }
+
+    vector<ll> ans(n + 1, 0);
+    int current_coverage = 0;
+    ll last_pos = -1;
+
+    for (auto const& [pos, change] : diff) {
+        if (last_pos != -1) {
+            ans[current_coverage] += (pos - last_pos);
+        }
+        current_coverage += change;
+        last_pos = pos;
+    }
+
+    for (int i = 1; i <= n; ++i) {
+        cout << ans[i] << (i == n ? "" : " ");
+    }
+    cout << endl;
+
+    return 0;
+}
